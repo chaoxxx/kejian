@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
   <Costura>
-    <!-- 将所有引用 DLL 嵌入到 exe 内部 -->
+    <!-- 托管 DLL 嵌入 -->
     <IncludeAssemblies>
       Markdig
       Newtonsoft.Json
       Microsoft.Web.WebView2.Core
       Microsoft.Web.WebView2.WinForms
     </IncludeAssemblies>
+    <!-- 原生 DLL 嵌入（WebView2 加载器） -->
+    <Unmanaged32Assemblies>
+      <Item>WebView2Loader</Item>
+    </Unmanaged32Assemblies>
     <DisableCompression>false</DisableCompression>
-    <!-- 创建临时目录解压，而非内存 -->
-    <CreateTemporaryAssemblies>false</CreateTemporaryAssemblies>
+    <!-- 原生 DLL 需要解压到磁盘才能加载 -->
+    <CreateTemporaryAssemblies>true</CreateTemporaryAssemblies>
   </Costura>
 </Weavers>
