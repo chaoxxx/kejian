@@ -8,12 +8,6 @@
       Microsoft.Web.WebView2.Core
       Microsoft.Web.WebView2.WinForms
     </IncludeAssemblies>
-    <!-- 排除系统程序集，不嵌入 -->
-    <ExcludeAssemblies>
-      System*
-      mscorlib
-      netstandard
-    </ExcludeAssemblies>
     <DisableCompression>false</DisableCompression>
     <!-- 创建临时目录解压，而非内存 -->
     <CreateTemporaryAssemblies>false</CreateTemporaryAssemblies>
