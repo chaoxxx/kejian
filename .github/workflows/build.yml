@@ -17,24 +17,85 @@ jobs:
       - name: 📥 检出代码
         uses: actions/checkout@v4
 
-      # windows-latest 已预装 .NET Framework 4.8 SDK + MSBuild，无需额外安装
-
       - name: 🔧 安装 .NET SDK 8.0
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: 📦 还原 NuGet 包
-        run: dotnet restore
+      # windows-latest 已预装 MSBuild + NuGet.exe + .NET Framework 4.8 SDK
+
+      - name: 📦 还原 NuGet 包 (nuget.exe)
+        id: restore_nuget
+        run: nuget restore KeJian.csproj -PackagesDirectory packages -Verbosity detailed
         working-directory: .
+        continue-on-error: true
+
+      - name: 📦 还原 NuGet 包 (dotnet restore)
+        id: restore_dotnet
+        if: steps.restore_nuget.outcome == 'failure'
+        run: dotnet restore --verbosity detailed
+        working-directory: .
+        continue-on-error: true
+
+      - name: 📋 显示 NuGet 错误详情
+        if: steps.restore_nuget.outcome == 'failure' && steps.restore_dotnet.outcome == 'failure'
+        run: |
+          Write-Host "=== nuget restore 失败 ==="
+          Write-Host "尝试列出可用包源:"
+          nuget sources list
+          Write-Host "`n尝试检查 .NET SDK 版本:"
+          dotnet --list-sdks
+          dotnet --list-runtimes
+          Write-Host "`n检查 .NET Framework 安装:"
+          Get-ChildItem "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework" -ErrorAction SilentlyContinue
+          Write-Host "`n当前目录文件列表:"
+          Get-ChildItem -Recurse -Depth 2 | Select-Object Name, Length | Format-Table -AutoSize
+        shell: powershell
+        continue-on-error: true
 
       - name: 🏗️ 构建项目 (Release)
-        run: dotnet build -c Release --no-restore
+        run: msbuild KeJian.csproj /p:Configuration=Release /p:RestorePackagesPath=packages /p:WarningLevel=0
         working-directory: .
+        continue-on-error: true
 
-      - name: 📤 单文件发布
-        run: dotnet publish -c Release -o publish --no-build
-        working-directory: .
+      - name: 📤 复制构建产物
+        run: |
+          mkdir publish -Force
+          $found = $false
+          # 尝试从多个可能的位置找 exe
+          $paths = @(
+            "bin\Release\net48\KeJian.exe",
+            "bin\Release\KeJian.exe",
+            "KeJian\bin\Release\net48\KeJian.exe",
+            "KeJian\bin\Release\KeJian.exe"
+          )
+          foreach ($p in $paths) {
+            if (Test-Path $p) {
+              Copy-Item $p "publish\KeJian.exe"
+              Write-Host "✅ 找到构建产物: $p"
+              $found = $true
+              break
+            }
+          }
+          if (-not $found) {
+            Write-Host "⚠️ 搜索构建产物..."
+            $results = Get-ChildItem -Recurse -Filter "KeJian.exe" -ErrorAction SilentlyContinue
+            if ($results) {
+              $results | ForEach-Object {
+                Write-Host "  找到: $($_.FullName) ($([math]::Round($_.Length / 1KB, 1)) KB)"
+                Copy-Item $_.FullName "publish\"
+                $found = $true
+              }
+            }
+          }
+          if (-not $found) {
+            Write-Host "❌ 未找到 KeJian.exe，搜索所有 .exe:"
+            Get-ChildItem -Recurse -Filter "*.exe" -ErrorAction SilentlyContinue | ForEach-Object {
+              Write-Host "  $($_.FullName) ($([math]::Round($_.Length / 1KB, 1)) KB)"
+            }
+            exit 1
+          }
+        shell: powershell
 
       - name: ✅ 验证构建产物
         run: |
@@ -46,17 +107,19 @@ jobs:
               Write-Host "   路径: $($file.FullName)"
           } else {
               Write-Host "❌ 未找到 KeJian.exe"
+              Get-ChildItem "publish" -Recurse
               exit 1
           }
-
-          $files = Get-ChildItem "publish" -Recurse
-          Write-Host "`n所有输出文件:"
-          $files | ForEach-Object { Write-Host "   $($_.Name) - $([math]::Round($_.Length / 1KB, 1)) KB" }
+          Get-ChildItem "publish" -Recurse | ForEach-Object {
+            Write-Host "   $($_.Name) - $([math]::Round($_.Length / 1KB, 1)) KB"
+          }
         shell: powershell
 
       - name: 📦 上传构建产物
+        if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
           name: KeJian-v1.0-windows
           path: publish/
           retention-days: 30
+          if-no-files-found: ignore
