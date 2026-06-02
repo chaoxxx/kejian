@@ -12,10 +12,10 @@
     <ExcludeAssemblies>
       System*
       mscorlib
-      Microsoft*
       netstandard
     </ExcludeAssemblies>
-    <!-- 调试时禁用嵌入，Release 时自动启用 -->
     <DisableCompression>false</DisableCompression>
+    <!-- 创建临时目录解压，而非内存 -->
+    <CreateTemporaryAssemblies>false</CreateTemporaryAssemblies>
   </Costura>
 </Weavers>

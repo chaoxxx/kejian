@@ -23,13 +23,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: 📦 还原 NuGet 包
-        run: |
-          $output = dotnet restore --verbosity minimal 2>&1
-          Write-Output $output
-          if ($LASTEXITCODE -ne 0) {
-            exit 1
-          }
-        shell: powershell
+        run: dotnet restore
         working-directory: .
 
       - name: 🏗️ 构建项目 (Release)
