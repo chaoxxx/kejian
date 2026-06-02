@@ -103,6 +103,8 @@ namespace KeJian.Forms
             this.KeyDown += MainForm_KeyDown;
             this.FormClosing += MainForm_FormClosing;
 
+            this.Load += MainForm_Load;
+            
             // ---- 上方工具栏 ----
             BuildTopToolbar();
 
@@ -258,17 +260,10 @@ namespace KeJian.Forms
             {
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Vertical,
-                Panel1MinSize = 200,
-                Panel2MinSize = 200,
                 BackColor = SystemColors.Control,
                 SplitterWidth = 4
             };
-            // 在设置完 MinSize 后再设 SplitterDistance，确保在有效范围内
-            var maxDistance = Math.Max(0, this.ClientSize.Width - _splitContainer.Panel2MinSize);
-            var desiredSplitter = this.ClientSize.Width / 2;
-            _splitContainer.SplitterDistance = desiredSplitter < _splitContainer.Panel1MinSize
-                ? _splitContainer.Panel1MinSize
-                : desiredSplitter > maxDistance ? maxDistance : desiredSplitter;
+            // PanelMinSize 和 SplitterDistance 在窗体 Load 时设置（构造时 Width=0 无法校验）
 
             // ---- 编辑器 ----
             _txtEditor = new TextBox
@@ -785,6 +780,15 @@ namespace KeJian.Forms
 
             _autoSaveTimer?.Stop();
             _autoSaveTimer?.Dispose();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            // 窗体加载后才能获取正确的 ClientSize，设置分栏布局
+            _splitContainer.Panel1MinSize = 200;
+            _splitContainer.Panel2MinSize = 200;
+            var maxDist = Math.Max(200, this.ClientSize.Width - _splitContainer.Panel2MinSize);
+            _splitContainer.SplitterDistance = Math.Min(this.ClientSize.Width / 2, maxDist);
         }
 
         // ==================================================================
