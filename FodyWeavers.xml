@@ -8,10 +8,13 @@
       Microsoft.Web.WebView2.Core
       Microsoft.Web.WebView2.WinForms
     </IncludeAssemblies>
-    <!-- 原生 DLL 嵌入（WebView2 加载器） -->
+    <!-- 原生 DLL 嵌入（WebView2 加载器，x86 + x64 双架构） -->
     <Unmanaged32Assemblies>
       <Item>WebView2Loader</Item>
     </Unmanaged32Assemblies>
+    <Unmanaged64Assemblies>
+      <Item>WebView2Loader</Item>
+    </Unmanaged64Assemblies>
     <DisableCompression>false</DisableCompression>
     <!-- 原生 DLL 需要解压到磁盘才能加载 -->
     <CreateTemporaryAssemblies>true</CreateTemporaryAssemblies>

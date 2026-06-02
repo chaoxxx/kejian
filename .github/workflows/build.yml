@@ -26,12 +26,12 @@ jobs:
         run: dotnet restore
         working-directory: .
 
-      - name: 🏗️ 构建项目 (Release)
-        run: dotnet build -c Release --no-restore
+      - name: 🏗️ 构建项目 (Release, x64)
+        run: dotnet build -c Release --no-restore -r win-x64
         working-directory: .
 
-      - name: 📤 发布单文件
-        run: dotnet publish -c Release -o publish --no-build
+      - name: 📤 发布单文件 (x64)
+        run: dotnet publish -c Release -o publish -r win-x64 --no-build
         working-directory: .
 
       - name: ✅ 验证构建产物
@@ -40,7 +40,7 @@ jobs:
           Write-Host "✅ 刻简 v1.0 构建成功"
           Write-Host "   大小: $([math]::Round($file.Length / 1KB, 1)) KB"
           Write-Host "   路径: $($file.FullName)"
-          Write-Host "   Costura 嵌入: 托管 DLL + WebView2Loader 原生 DLL 已内嵌到 exe"
+          Write-Host "   Costura 嵌入: 托管 DLL + WebView2Loader 原生 DLL (x86+x64) 已内嵌到 exe"
           Write-Host ""
           Write-Host "⚠️  运行要求:"
           Write-Host "   - 系统: Windows 10 1803+ / Windows 11"
