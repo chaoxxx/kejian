@@ -35,9 +35,6 @@ namespace KeJian
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
-                // 设置高 DPI 支持
-                Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
-
                 var mainForm = new MainForm();
                 Application.Run(mainForm);
             }

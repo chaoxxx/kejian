@@ -79,7 +79,7 @@ document.addEventListener('click', function(e) {{
 
             try
             {
-                return Markdown.ToHtml(markdown, _pipeline);
+                return Markdig.Markdown.ToHtml(markdown, _pipeline);
             }
             catch (Exception ex)
             {

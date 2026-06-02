@@ -71,6 +71,9 @@ namespace KeJian.Forms
         private const int MinWindowWidth = 900;
         private const int MinWindowHeight = 550;
 
+        // ========== ToolTip 组件 ==========
+        private readonly ToolTip _toolTip = new ToolTip { InitialDelay = 300, ReshowDelay = 100 };
+
         public MainForm()
         {
             _storage = new DiaryStorage();
@@ -205,9 +208,9 @@ namespace KeJian.Forms
                 Location = new Point(_topToolbar.Width - 120, 6),
                 FlatStyle = FlatStyle.Flat,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                ToolTipText = "设置"
             };
             btnSettings.Click += (s, e) => ShowSettings();
+            _toolTip.SetToolTip(btnSettings, "设置");
 
             var btnExport = new Button
             {
@@ -216,9 +219,9 @@ namespace KeJian.Forms
                 Location = new Point(_topToolbar.Width - 84, 6),
                 FlatStyle = FlatStyle.Flat,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                ToolTipText = "导出当前日记"
             };
             btnExport.Click += (s, e) => ExportCurrentDiary();
+            _toolTip.SetToolTip(btnExport, "导出当前日记");
 
             var btnBackup = new Button
             {
@@ -227,9 +230,9 @@ namespace KeJian.Forms
                 Location = new Point(_topToolbar.Width - 48, 6),
                 FlatStyle = FlatStyle.Flat,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                ToolTipText = "备份所有数据"
             };
             btnBackup.Click += (s, e) => BackupAll();
+            _toolTip.SetToolTip(btnBackup, "备份所有数据");
 
             _topToolbar.Controls.AddRange(new Control[] {
                 _btnPrevDay, _lblDate, _btnNextDay, _btnToday, _dtpDate,
@@ -851,7 +854,6 @@ namespace KeJian.Forms
                 }
             };
             chip.ContextMenuStrip = _tagContextMenu;
-            chip.ContextMenuStrip.SourceControl = chip;
 
             wrapper.Controls.Add(chip);
             _tagPanel.Controls.Add(wrapper);
@@ -880,7 +882,7 @@ namespace KeJian.Forms
         {
             if (string.IsNullOrEmpty(tag)) return;
 
-            foreach (Control ctrl in _tagPanel.Controls.ToArray())
+            foreach (Control ctrl in _tagPanel.Controls.Cast<Control>().ToArray())
             {
                 if (ctrl is Panel p && p.Tag is string t &&
                     string.Equals(t, tag, StringComparison.OrdinalIgnoreCase))
@@ -995,8 +997,7 @@ namespace KeJian.Forms
         {
             using (var dlg = new FolderBrowserDialog
             {
-                Description = "选择备份保存位置",
-                UseDescriptionForTitle = true
+                Description = "选择备份保存位置"
             })
             {
                 if (dlg.ShowDialog() == DialogResult.OK)
@@ -1164,16 +1165,18 @@ namespace KeJian.Forms
         // ==================================================================
         private Button CreateToolButton(string text, int width, int height, string toolTip)
         {
-            return new Button
+            var btn = new Button
             {
                 Text = text,
                 Size = new Size(width, height),
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Microsoft YaHei", 9, FontStyle.Regular),
-                ToolTipText = toolTip,
                 UseVisualStyleBackColor = true,
                 TabStop = false
             };
+            if (!string.IsNullOrEmpty(toolTip))
+                _toolTip.SetToolTip(btn, toolTip);
+            return btn;
         }
 
         private void InsertMarkdownSyntax(string prefix, string suffix)
@@ -1222,7 +1225,7 @@ namespace KeJian.Forms
             Directory.CreateDirectory(dest);
             foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
             {
-                var relPath = Path.GetRelativePath(source, file);
+                var relPath = file.Substring(source.Length).TrimStart(Path.DirectorySeparatorChar);
                 var target = Path.Combine(dest, relPath);
                 Directory.CreateDirectory(Path.GetDirectoryName(target));
                 File.Copy(file, target, true);
