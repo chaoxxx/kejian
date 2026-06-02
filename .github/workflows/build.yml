@@ -22,8 +22,8 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: 📦 还原 NuGet 包
-        run: dotnet restore
+      - name: 📦 还原 NuGet 包 (x64)
+        run: dotnet restore -r win-x64
         working-directory: .
 
       - name: 🏗️ 构建项目 (Release, x64)
