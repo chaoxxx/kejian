@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
+  <Costura>
+    <!-- 将所有引用 DLL 嵌入到 exe 内部 -->
+    <IncludeAssemblies>
+      Markdig
+      Newtonsoft.Json
+      Microsoft.Web.WebView2.Core
+      Microsoft.Web.WebView2.WinForms
+    </IncludeAssemblies>
+    <!-- 排除系统程序集，不嵌入 -->
+    <ExcludeAssemblies>
+      System*
+      mscorlib
+      Microsoft*
+      netstandard
+    </ExcludeAssemblies>
+    <!-- 调试时禁用嵌入，Release 时自动启用 -->
+    <DisableCompression>false</DisableCompression>
+  </Costura>
+</Weavers>

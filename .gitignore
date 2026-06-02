@@ -1,0 +1,29 @@
+# 日记本 - .gitignore
+
+# Build
+bin/
+obj/
+publish/
+packages/
+
+# IDE
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+*.sln.iml
+
+# Data
+data/
+
+# Temp files
+*.tmp
+*.log
+*.cache
