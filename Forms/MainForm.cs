@@ -335,13 +335,18 @@ namespace KeJian.Forms
             {
                 // WebView2 不可用，显示提示
                 _webViewPreview.Visible = false;
+                var details = ex.Message;
+                if (ex is System.IO.FileNotFoundException fnf)
+                    details = $"缺少文件: {fnf.FileName}\n\n可能原因: Costura 未嵌入对应架构的 WebView2Loader.dll";
                 var lbl = new Label
                 {
-                    Text = $"⚠️ WebView2 未安装或初始化失败\n\n请在 Microsoft Edge 官网下载 WebView2 Runtime\n(约 1.5MB，安装后重启本软件)\n\n错误: {ex.Message}",
+                    Text = $"⚠️ WebView2 初始化失败\n\n{details}\n\n解决方法:\n1. 请确保已安装 WebView2 Runtime\n   https://go.microsoft.com/fwlink/p/?LinkId=2124703\n2. 如已安装，检查应用是否在 64 位系统运行\n   尝试安装 VC++ Redistributable",
                     Dock = DockStyle.Fill,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Font = new Font("Microsoft YaHei", 11),
-                    ForeColor = Color.FromArgb(100, 100, 100)
+                    ForeColor = Color.FromArgb(100, 100, 100),
+                    AutoSize = false,
+                    Padding = new Padding(20)
                 };
                 _splitContainer.Panel2.Controls.Add(lbl);
             }
