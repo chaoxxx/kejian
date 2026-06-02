@@ -22,32 +22,19 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      # windows-latest 已预装 MSBuild + NuGet.exe + .NET Framework 4.8 SDK
-
       - name: 📦 还原 NuGet 包
-        run: nuget restore KeJian.csproj -PackagesDirectory packages
+        run: dotnet restore
         working-directory: .
 
       - name: 🏗️ 构建项目 (Release)
-        run: msbuild KeJian.csproj /p:Configuration=Release /p:RestorePackagesPath=packages /p:WarningLevel=0
+        run: dotnet build -c Release --no-restore
         working-directory: .
 
-      - name: 🔍 收集构建产物
-        id: collect
-        run: |
-          mkdir publish -Force
-          $exe = Get-ChildItem -Recurse -Filter "KeJian.exe" -ErrorAction SilentlyContinue
-          if (-not $exe) {
-            Write-Host "❌ 未找到 KeJian.exe"
-            exit 1
-          }
-          $exe | ForEach-Object {
-            Copy-Item $_.FullName "publish\"
-            Write-Host "✅ 复制: $($_.FullName)"
-          }
-        shell: powershell
+      - name: 📤 发布单文件
+        run: dotnet publish -c Release -o publish --no-build
+        working-directory: .
 
-      - name: ✅ 验证产物
+      - name: ✅ 验证构建产物
         run: |
           $file = Get-Item "publish\KeJian.exe"
           Write-Host "✅ 刻简 v1.0 构建成功"
