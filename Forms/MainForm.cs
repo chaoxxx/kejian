@@ -258,12 +258,17 @@ namespace KeJian.Forms
             {
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Vertical,
-                SplitterDistance = this.ClientSize.Width / 2,
                 Panel1MinSize = 200,
                 Panel2MinSize = 200,
                 BackColor = SystemColors.Control,
                 SplitterWidth = 4
             };
+            // 在设置完 MinSize 后再设 SplitterDistance，确保在有效范围内
+            var maxDistance = Math.Max(0, this.ClientSize.Width - _splitContainer.Panel2MinSize);
+            var desiredSplitter = this.ClientSize.Width / 2;
+            _splitContainer.SplitterDistance = desiredSplitter < _splitContainer.Panel1MinSize
+                ? _splitContainer.Panel1MinSize
+                : desiredSplitter > maxDistance ? maxDistance : desiredSplitter;
 
             // ---- 编辑器 ----
             _txtEditor = new TextBox
