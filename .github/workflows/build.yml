@@ -1,0 +1,66 @@
+name: 🏗️ 构建验证
+
+on:
+  push:
+    branches: [ master, main, develop ]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+
+      - name: 🧰 安装 .NET Framework 4.8 SDK
+        run: |
+          # windows-latest 自带 .NET Framework 4.8，只需安装构建工具
+          choco install visualstudio2022-buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.ManagedDesktop --add Microsoft.VisualStudio.Component.NuGet --includeRecommended" -y --no-progress
+        shell: powershell
+
+      - name: 🔧 安装 .NET SDK 8.0（用于 SDK 风格项目构建）
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: 📦 还原 NuGet 包
+        run: dotnet restore
+        working-directory: .
+
+      - name: 🏗️ 构建项目
+        run: dotnet build -c Release --no-restore -warnaserror
+        working-directory: .
+
+      - name: 📤 发布单文件
+        run: dotnet publish -c Release -o publish --no-build
+        working-directory: .
+
+      - name: ✅ 验证构建产物
+        run: |
+          echo "=== 构建产物 ==="
+          if (Test-Path "publish\KeJian.exe") {
+              $file = Get-Item "publish\KeJian.exe"
+              Write-Host "✅ KeJian.exe 构建成功"
+              Write-Host "   大小: $([math]::Round($file.Length / 1KB, 1)) KB"
+              Write-Host "   路径: $($file.FullName)"
+          } else {
+              Write-Host "❌ 未找到 KeJian.exe"
+              exit 1
+          }
+
+          $files = Get-ChildItem "publish" -Recurse
+          Write-Host "`n所有输出文件:"
+          $files | ForEach-Object { Write-Host "   $($_.Name) - $([math]::Round($_.Length / 1KB, 1)) KB" }
+        shell: powershell
+
+      - name: 📦 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: KeJian-v1.0-windows
+          path: publish/
+          retention-days: 30
