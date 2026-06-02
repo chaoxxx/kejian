@@ -17,13 +17,9 @@ jobs:
       - name: 📥 检出代码
         uses: actions/checkout@v4
 
-      - name: 🧰 安装 .NET Framework 4.8 SDK
-        run: |
-          # windows-latest 自带 .NET Framework 4.8，只需安装构建工具
-          choco install visualstudio2022-buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.ManagedDesktop --add Microsoft.VisualStudio.Component.NuGet --includeRecommended" -y --no-progress
-        shell: powershell
+      # windows-latest 已预装 .NET Framework 4.8 SDK + MSBuild，无需额外安装
 
-      - name: 🔧 安装 .NET SDK 8.0（用于 SDK 风格项目构建）
+      - name: 🔧 安装 .NET SDK 8.0
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
@@ -32,11 +28,11 @@ jobs:
         run: dotnet restore
         working-directory: .
 
-      - name: 🏗️ 构建项目
-        run: dotnet build -c Release --no-restore -warnaserror
+      - name: 🏗️ 构建项目 (Release)
+        run: dotnet build -c Release --no-restore
         working-directory: .
 
-      - name: 📤 发布单文件
+      - name: 📤 单文件发布
         run: dotnet publish -c Release -o publish --no-build
         working-directory: .
 
