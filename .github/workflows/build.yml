@@ -40,6 +40,12 @@ jobs:
           Write-Host "✅ 刻简 v1.0 构建成功"
           Write-Host "   大小: $([math]::Round($file.Length / 1KB, 1)) KB"
           Write-Host "   路径: $($file.FullName)"
+          Write-Host "   Costura 嵌入: 托管 DLL + WebView2Loader 原生 DLL 已内嵌到 exe"
+          Write-Host ""
+          Write-Host "⚠️  运行要求:"
+          Write-Host "   - 系统: Windows 10 1803+ / Windows 11"
+          Write-Host "   - WebView2 Runtime (Win10 已预装)"
+          Write-Host "   - 如遇 SxS 错误: 安装 VC++ Redistributable"
         shell: powershell
 
       - name: 📦 上传构建产物
