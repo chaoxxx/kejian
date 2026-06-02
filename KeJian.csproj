@@ -7,7 +7,6 @@
     <UseWPF>false</UseWPF>
     <AssemblyName>KeJian</AssemblyName>
     <RootNamespace>KeJian</RootNamespace>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
     <BaseOutputPath>bin\</BaseOutputPath>
     <Authors>KeJian</Authors>
     <Description>刻简 - 极速单机日记本，支持Markdown语法与实时预览</Description>
