@@ -7,7 +7,6 @@
     <UseWPF>false</UseWPF>
     <AssemblyName>KeJian</AssemblyName>
     <RootNamespace>KeJian</RootNamespace>
-    <ApplicationIcon>Resources\diary.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <BaseOutputPath>bin\</BaseOutputPath>
     <Authors>KeJian</Authors>
