@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net48</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>false</UseWPF>
     <AssemblyName>KeJian</AssemblyName>
     <RootNamespace>KeJian</RootNamespace>
     <ApplicationIcon>Resources\diary.ico</ApplicationIcon>
@@ -14,23 +15,39 @@
     <Version>1.0.0</Version>
     <FileVersion>1.0.0.0</FileVersion>
     <Copyright>Copyright 2026</Copyright>
+
+    <!-- 重要：显式启用旧版 csproj 风格以兼容 net48 -->
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <NuGetTargetFallback>portable-net45+win8</NuGetTargetFallback>
   </PropertyGroup>
 
-  <!-- 优化：启用 ReadyToRun 提升启动速度 -->
+  <!-- 发布配置 -->
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <PublishSingleFile>true</PublishSingleFile>
-    <SelfContained>false</SelfContained>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
   </PropertyGroup>
 
+  <!-- NuGet 包 -->
   <ItemGroup>
+    <!-- .NET Framework 4.8 引用程序集（SDK 风格项目必须） -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
+    <!-- Markdown 解析引擎 -->
     <PackageReference Include="Markdig" Version="0.37.0" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592-prerelease" />
+
+    <!-- WebView2 - 使用稳定版 -->
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2735.40" />
+
+    <!-- JSON 序列化 -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+
+    <!-- 单文件打包（将依赖 DLL 嵌入 exe） -->
     <PackageReference Include="Fody" Version="6.8.1">
       <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Costura.Fody" Version="5.8.0">
       <PrivateAssets>all</PrivateAssets>
@@ -38,19 +55,16 @@
     </PackageReference>
   </ItemGroup>
 
+  <!-- 内嵌资源 -->
   <ItemGroup>
     <EmbeddedResource Include="Resources\markdown.css" />
   </ItemGroup>
 
+  <!-- 系统引用 -->
   <ItemGroup>
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
-
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them. For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(MSBuildThisFileDirectory)\.nuget\packages\Costura.Fody.5.8.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'Costura.Fody'))" />
-  </Target>
 
 </Project>
